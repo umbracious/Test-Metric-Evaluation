@@ -2,7 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-// imported from devoir 1
+// Imported from devoir 1
 
 // This code doesn't work if the java file being read uses an indicator of comment as a string
 // For example, if the file uses a String s = "/*"; the code will not work properly
@@ -68,3 +68,4 @@ public class tloc {
         return tloc;
     }
 }
+
