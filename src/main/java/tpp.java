@@ -34,8 +34,14 @@ public class tpp {
         }
 
         System.out.println("Nombre Total de methodes @Test dans le package: " + totalTestCount);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return totalTestCount;
+    
     }
-}
 
 //source : https://stackoverflow.com/questions/28678026/how-can-i-get-all-class-files-in-a-specific-package-in-java?rq=3
 //par mythbu.
