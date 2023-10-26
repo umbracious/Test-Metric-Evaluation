@@ -1,6 +1,6 @@
 import java.io.File;
 
-public class TPP {
+public class tpp {
     public static void main(String[] args) {
         if (args.length != 1) {
             System.err.println("Erreur : java TPP <PackageDirectory>");

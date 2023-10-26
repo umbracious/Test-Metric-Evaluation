@@ -33,6 +33,7 @@ public class Main {
             float tassertSum = 0;
             int tropCompCounter = 0;
             int totalMethodcount = 0;
+            float totalAvgCC = 0;
 
             for (File file : testFiles) {
 
@@ -56,6 +57,7 @@ public class Main {
                 float currTCMP = (float) currTLOC/ (float) currTASSERT;
                 float currDC = (float) info.get("dc");
                 int currMethodCount = (int) info.get("methodCount");
+                float currAvgCC = (float) info.get("averageCC");
 
                 float tlocPercentile = (float) ((tlocList.indexOf(currTLOC)+1)*100)/ testFileQuantity;
                 float tcmpPercentile = (float) ((tcmpList.indexOf(currTCMP)+1)*100)/ testFileQuantity;
@@ -71,10 +73,12 @@ public class Main {
                 dcSum = dcSum + currDC;
                 tassertSum = tassertSum + currTASSERT;
                 totalMethodcount = totalMethodcount + currMethodCount;
+                totalAvgCC = totalAvgCC + currAvgCC;
 
             }
 
-            System.out.println("average method count per test file: " + totalMethodcount/testFileQuantity);
+            System.out.println("Average CC: " + totalAvgCC/testFileQuantity);
+            System.out.println("Average method count per test file: " + totalMethodcount/testFileQuantity);
             System.out.println("TASSERT moyen: " + tassertSum/testFileQuantity);
             System.out.println("% des fichiers test: " + 100*(float)(testFiles.size())/javaFiles.size() + "%");
             System.out.println("% des fichiers trop compliqués: " +  100*(float)tropCompCounter/testFileQuantity + "%");
@@ -180,6 +184,9 @@ public class Main {
 
         int methodCountVal = cc.methodCount(file.getPath());
         dictionary.put("methodCount",methodCountVal);
+
+        float averageCC = cc.calculateAvgCC(file.getPath());
+        dictionary.put("averageCC",averageCC);
 
         return dictionary;
     }

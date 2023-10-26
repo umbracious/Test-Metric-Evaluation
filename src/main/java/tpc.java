@@ -2,7 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class TPC {
+public class tpc {
     public static void main(String[] args) {
         if (args.length != 1) {
             System.err.println("erreur <JavaFile.java>");
