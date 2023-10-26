@@ -1,30 +1,43 @@
 // Calculate cyclomatic complexity
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class cc {
 
-    // Get method count using file name
-    // Source: https://stackoverflow.com/questions/63346839/get-method-as-a-file-from-java-file
-    public static int methodCount(String fileName) {
-
-        JavaMethodParser jmp = null;
-
+    // Get method count of a file
+    // Regex from: https://stackoverflow.com/questions/68633/regex-that-will-match-a-java-method-declaration
+    public static int methodCount(String filePath) {
         try {
-            Scanner input = new Scanner(new File(fileName));
-            String classContents = input.useDelimiter("\\Z").next().trim();
+            BufferedReader reader = new BufferedReader(new FileReader(filePath));
+            StringBuilder javaCode = new StringBuilder();
+            String line;
 
-            jmp = new JavaMethodParser(classContents);
+            while ((line = reader.readLine()) != null) {
+                javaCode.append(line).append("\n");
+            }
 
-            input.close();
+            reader.close();
 
+            // Define a regular expression pattern to match Java method declarations
+            String regex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\) *(\\{?|[^;])";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher methodMatcher = pattern.matcher(javaCode.toString());
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            int methodCount = 0;
+            while (methodMatcher.find()) {
+                methodCount++;
+            }
+
+            return methodCount;
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
         }
 
-        return jmp.countMethods();
+        return -1; // error
     }
+
 }

@@ -32,13 +32,13 @@ public class Main {
             float dcSum = 0;
             float tassertSum = 0;
             int tropCompCounter = 0;
+            int totalMethodcount = 0;
 
             for (File file : testFiles) {
 
                 HashMap info = getInfo(file, path);
                 int currTLOC = (int) info.get("tloc");
                 float currTCMP = (float) info.get("tcmp");
-
 
                 tlocList.add(currTLOC);
                 tcmpList.add(currTCMP);
@@ -55,9 +55,10 @@ public class Main {
                 int currTASSERT = (int) info.get("tassert");
                 float currTCMP = (float) currTLOC/ (float) currTASSERT;
                 float currDC = (float) info.get("dc");
+                int currMethodCount = (int) info.get("methodCount");
 
-                float tlocPercentile = (float) ((tlocList.indexOf(currTLOC)+1)*100)/(float) testFileQuantity;
-                float tcmpPercentile = (float) ((tcmpList.indexOf(currTCMP)+1)*100)/(float) testFileQuantity;
+                float tlocPercentile = (float) ((tlocList.indexOf(currTLOC)+1)*100)/ testFileQuantity;
+                float tcmpPercentile = (float) ((tcmpList.indexOf(currTCMP)+1)*100)/ testFileQuantity;
 
                 // If both percentiles exceed the threshold, write the files info to the .csv file
                 float percentileThreshold = 75;
@@ -69,9 +70,11 @@ public class Main {
 
                 dcSum = dcSum + currDC;
                 tassertSum = tassertSum + currTASSERT;
+                totalMethodcount = totalMethodcount + currMethodCount;
 
             }
 
+            System.out.println("average method count per test file: " + totalMethodcount/testFileQuantity);
             System.out.println("TASSERT moyen: " + tassertSum/testFileQuantity);
             System.out.println("% des fichiers test: " + 100*(float)(testFiles.size())/javaFiles.size() + "%");
             System.out.println("% des fichiers trop compliqués: " +  100*(float)tropCompCounter/testFileQuantity + "%");
@@ -174,6 +177,9 @@ public class Main {
 
         float dcVal = dc.calculateDC(file.getPath());
         dictionary.put("dc",dcVal);
+
+        int methodCountVal = cc.methodCount(file.getPath());
+        dictionary.put("methodCount",methodCountVal);
 
         return dictionary;
     }
