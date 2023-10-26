@@ -1,15 +1,14 @@
 import java.io.File;
 
 public class tpp {
-    public static void main(String[] args) {
-        if (args.length != 1) {
+    public static int MethodCountPackage(String packageName) {
+        if (packageName.length != 1) {
             System.err.println("Erreur : java TPP <PackageDirectory>");
             System.exit(1);
         }
 
         //insere le package directory dans un File recu par la ligne de commande
-        String packageDirectory = args[0];
-        File packageDir = new File(packageDirectory);
+        File packageDir = new File(packageName);
 
         //validation du directory
         if (!packageDir.isDirectory()) {
