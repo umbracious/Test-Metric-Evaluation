@@ -1,9 +1,7 @@
 //Imported from TLS of TP 1
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,111 +10,73 @@ public class Main {
     public static void main (String[] args){
 
         // Only 1 argument, prints to command line if valid path
-        if (args.length == 1){
+        if (args.length == 1) {
             String path = args[0];
             File directory = new File(path);
 
             // Invalid directory argument
-            if (!directory.exists() || !directory.isDirectory()){
+            if (!directory.exists() || !directory.isDirectory()) {
                 System.err.println("Incorrect directory: java <entry-dir>");
                 System.exit(1);
             }
 
-            // Find every test file in directory and sub-directories
+            // Find every .java file and every test file in directory and sub-directories
+            List<File> javaFiles = findJavaFiles(directory);
             List<File> testFiles = findTestFiles(directory);
+
+
+            List<Integer> tlocList = new ArrayList<>();
+            List<Float> tcmpList = new ArrayList<>();
+
+            float testFileQuantity = (float) testFiles.size();
+            float dcSum = 0;
+            float tassertSum = 0;
+            int tropCompCounter = 0;
+
+            for (File file : testFiles) {
+
+                HashMap info = getInfo(file, path);
+                int currTLOC = (int) info.get("tloc");
+                float currTCMP = (float) info.get("tcmp");
+
+
+                tlocList.add(currTLOC);
+                tcmpList.add(currTCMP);
+
+            }
+
+            Collections.sort(tlocList);
+            Collections.sort(tcmpList);
 
             for (File file: testFiles){
 
-                // Get HashMap containing all relevant info for the file
-                HashMap dict = getInfo(file, path);
+                HashMap info = getInfo(file, path);
+                int currTLOC = (int) info.get("tloc");
+                int currTASSERT = (int) info.get("tassert");
+                float currTCMP = (float) currTLOC/ (float) currTASSERT;
+                float currDC = (float) info.get("dc");
 
-                // Print everything to command line
-                System.out.println(dict.get("relativePath") + " " + dict.get("package") + " " +  dict.get("className")
-                        + " " + dict.get("tloc") + " " +  dict.get("tassert") + " " + (dict.get("tcmp")));
-            }
-        }
+                float tlocPercentile = (float) ((tlocList.indexOf(currTLOC)+1)*100)/(float) testFileQuantity;
+                float tcmpPercentile = (float) ((tcmpList.indexOf(currTCMP)+1)*100)/(float) testFileQuantity;
 
-        // 2 arguments and first argument is "-o", output to .csv file in same directory
-        else if (args.length == 2 && args[0].equals("-o")){
-            String path = args[1];
-            File directory = new File(path);
+                // If both percentiles exceed the threshold, write the files info to the .csv file
+                float percentileThreshold = 75;
 
-            // Invalid directory argument
-            if (!directory.exists() || !directory.isDirectory()){
-                System.err.println("Incorrect directory: java -o <entry-dir>");
-                System.exit(1);
-            }
-
-            // Find every test file in directory and sub-directories
-            List<File> testFiles = findTestFiles(directory);
-
-            // Output to tls.csv
-            try {
-                FileWriter fileWriter = new FileWriter("tls.csv");
-                for (File file: testFiles) {
-                    // Get HashMap containing all relevant info for the file
-                    HashMap dict = getInfo(file, path);
-
-                    // Write info from hashmap to .csv file
-                    fileWriter.write(dict.get("relativePath") + "," + dict.get("package") + ","
-                            + dict.get("className") + "," + Integer.toString((Integer) dict.get("tloc")) + ","
-                            + Integer.toString((Integer) dict.get("tassert"))  + ","
-                            + Float.toString((Float) dict.get("tcmp")) + "\n");
+                // If both percentiles exceed the threshold, print out the file in question
+                if (tlocPercentile >= percentileThreshold && tcmpPercentile >= percentileThreshold){
+                    tropCompCounter++;
                 }
 
-                fileWriter.close();
+                dcSum = dcSum + currDC;
+                tassertSum = tassertSum + currTASSERT;
 
-            } catch (IOException e) {
-                System.out.println("Invalid output file directory");
-                e.printStackTrace();
-                System.exit(1);
             }
 
-        }
+            System.out.println("TASSERT moyen: " + tassertSum/testFileQuantity);
+            System.out.println("% des fichiers test: " + 100*(float)(testFiles.size())/javaFiles.size() + "%");
+            System.out.println("% des fichiers trop compliqués: " +  100*(float)tropCompCounter/testFileQuantity + "%");
+            System.out.println("Densité de commentaires moyenne: " + 100*dcSum/testFileQuantity + "%");
 
-        // 3 arguments and first argument is "-o", output to .csv file in specified directory
-        else if (args.length == 3 && args[0].equals("-o")){
-            String path = args[2];
-            File directory = new File(path);
-
-            // Invalid entry directory
-            if (!directory.exists() || !directory.isDirectory()){
-                System.err.println("Incorrect entry directory: java -o (<output-dir>) <entry-dir>");
-                System.exit(1);
-            }
-
-            // Find every test file in directory and sub-directories
-            List<File> testFiles = findTestFiles(directory);
-
-            // Output to specified directory
-            try {
-                FileWriter fileWriter = new FileWriter(args[1]);
-                for (File file: testFiles) {
-                    // Get HashMap containing all relevant info for the file
-                    HashMap dict = getInfo(file, path);
-
-                    // Write info from hashmap to .csv file
-                    fileWriter.write(dict.get("relativePath") + "," + dict.get("package") + ","
-                            + dict.get("className") + "," + Integer.toString((Integer) dict.get("tloc")) + ","
-                            + Integer.toString((Integer) dict.get("tassert"))  + ","
-                            + Float.toString((Float) dict.get("tcmp")) + "\n");
-                }
-
-                fileWriter.close();
-
-            } catch (IOException e) {
-                System.out.println("Invalid output file directory");
-                e.printStackTrace();
-                System.exit(1);
-            }
-
-
-        }
-
-        // Invalid argument
-        else {
-            System.err.println("Correct usage: java <entry-dir> || java -o (<output-dir>) <entry-dir>");
-            System.exit(1);
         }
 
     }
@@ -153,6 +113,35 @@ public class Main {
 
     }
 
+    // Same as findTestFiles but finds every file in directory
+    public static List<File> findJavaFiles(File directory){
+        List<File> files = new ArrayList<>();
+
+        javaFilesRec(directory,files);
+
+        return files;
+    }
+
+    // Recursion for findJavaFiles method
+    public static void javaFilesRec(File directory, List<File> files){
+        File[] dirFiles = directory.listFiles();
+
+        if (files != null){
+            for (File file: dirFiles){
+
+                // If files is a directory, recursive call for all files inside it
+                if (file.isDirectory()){
+                    javaFilesRec(file, files);
+                }
+
+                // Adds file to list if it's a .java file with test somewhere in the name
+                else if (file.getName().toLowerCase().endsWith(".java")){
+                    files.add(file);
+                }
+            }
+        }
+    }
+
     public static String getRelativePath(String origin, String filePath){
         String relativePath = filePath.substring(origin.length());
 
@@ -180,8 +169,11 @@ public class Main {
         dictionary.put("tassert",tassertVal);
 
         // Get tcmp
-        float tcmp = (float) tlocVal / (float) tassertVal;
-        dictionary.put("tcmp",tcmp);
+        float tcmpVal = tcmp.calculateTCMP(file.getPath());
+        dictionary.put("tcmp",tcmpVal);
+
+        float dcVal = dc.calculateDC(file.getPath());
+        dictionary.put("dc",dcVal);
 
         return dictionary;
     }

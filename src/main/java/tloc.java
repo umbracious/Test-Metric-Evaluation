@@ -53,9 +53,6 @@ public class tloc {
                         isComment = false;
                     }
                 }
-
-                // Increment counter
-                tloc++;
             }
 
         } catch (IOException e) {
