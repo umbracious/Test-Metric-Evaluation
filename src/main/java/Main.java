@@ -39,7 +39,8 @@ public class Main {
 
                 if (file.isFile()){
                     String currFilePath = file.getPath();
-                    String pkgName=currFilePath.substring(currFilePath.indexOf("src"), currFilePath.lastIndexOf('\\'));
+                    String pkgName=currFilePath.substring(currFilePath.indexOf("src"),
+                            currFilePath.lastIndexOf('\\'));
                     packages.add(pkgName);
                 }
 
@@ -102,6 +103,9 @@ public class Main {
 
         }
 
+        else {
+            System.out.println("Invalid Arguments. Correct syntax: java -jar TP2.jar <input-dir>");
+        }
     }
 
     // Find every test java file within the directory and its sub-directories
