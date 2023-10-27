@@ -8,38 +8,9 @@ import java.util.regex.Pattern;
 
 public class cc {
 
-    // Get method count of a file
+    // Find average cyclomatic complexity of the methods in a file
+    // Variation of method count in tpc class
     // Regex from: https://stackoverflow.com/questions/68633/regex-that-will-match-a-java-method-declaration
-    public static int methodCount(String filePath) {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            StringBuilder code = new StringBuilder();
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                code.append(line).append("\n");
-            }
-
-            reader.close();
-
-            // Define a regular expression pattern to match Java method declarations
-            String regex = "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+(\\w+) *\\([^\\)]*\\) *(\\{?|[^;])";
-            Pattern pattern = Pattern.compile(regex);
-            Matcher methodMatcher = pattern.matcher(code.toString());
-
-            int methodCount = 0;
-            while (methodMatcher.find()) {
-                methodCount++;
-            }
-
-            return methodCount;
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-
-        return -1; // Should never get this return statement, just put it in to avoid error
-    }
-
     public static float calculateAvgCC(String filePath) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));

@@ -27,6 +27,8 @@ public class Main {
 
             List<Integer> tlocList = new ArrayList<>();
             List<Float> tcmpList = new ArrayList<>();
+            Set<String> packages = new HashSet<>();
+
 
             float testFileQuantity = (float) testFiles.size();
             float dcSum = 0;
@@ -37,6 +39,12 @@ public class Main {
 
             for (File file : testFiles) {
 
+                if (file.isFile()){
+                    String currFilePath = file.getPath();
+                    String pkgName=currFilePath.substring(currFilePath.indexOf("src"), currFilePath.lastIndexOf('\\'));
+                    packages.add(pkgName);
+                }
+
                 HashMap info = getInfo(file, path);
                 int currTLOC = (int) info.get("tloc");
                 float currTCMP = (float) info.get("tcmp");
@@ -45,6 +53,14 @@ public class Main {
                 tcmpList.add(currTCMP);
 
             }
+
+            // Calculate TPP
+            int packageQuantity = packages.size();
+            int totalTPP = 0;
+            for (String pkg: packages){
+                totalTPP = totalTPP + tpp.MethodCountPackage(path + '\\' + pkg);
+            }
+            float avgTPP = (float) totalTPP/packageQuantity;
 
             Collections.sort(tlocList);
             Collections.sort(tcmpList);
@@ -76,9 +92,9 @@ public class Main {
                 totalAvgCC = totalAvgCC + currAvgCC;
 
             }
-
+            System.out.println("Average TPP: " + avgTPP);
             System.out.println("Average CC: " + totalAvgCC/testFileQuantity);
-            System.out.println("Average method count per test file: " + totalMethodcount/testFileQuantity);
+            System.out.println("Average TPC: " + totalMethodcount/testFileQuantity);
             System.out.println("TASSERT moyen: " + tassertSum/testFileQuantity);
             System.out.println("% des fichiers test: " + 100*(float)(testFiles.size())/javaFiles.size() + "%");
             System.out.println("% des fichiers trop compliqués: " +  100*(float)tropCompCounter/testFileQuantity + "%");
@@ -182,7 +198,7 @@ public class Main {
         float dcVal = dc.calculateDC(file.getPath());
         dictionary.put("dc",dcVal);
 
-        int methodCountVal = cc.methodCount(file.getPath());
+        int methodCountVal = tpc.methodCount(file.getPath());
         dictionary.put("methodCount",methodCountVal);
 
         float averageCC = cc.calculateAvgCC(file.getPath());

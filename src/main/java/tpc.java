@@ -1,15 +1,20 @@
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class tpc {
-    public static int MethodCount(String fileName) {
+
+    public static int methodCount(String fileName) {
         //nombre de test variable initiale
         int testCount = 0;
 
         //lire ligne par ligne et ajouter le tout dans une StringBuilder nommé codeBlock
         //@bool TestMethod pour presence de @Test dans un code et incremente testcount
-        try (BufferedReader br = new BufferedReader(new FileReader(fileName)) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
             String line;
             StringBuilder codeBlock = new StringBuilder();
             boolean TestMethod = false;
@@ -29,7 +34,7 @@ public class tpc {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
 
         return testCount;
