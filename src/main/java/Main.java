@@ -2,8 +2,6 @@
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Main {
 
@@ -67,6 +65,7 @@ public class Main {
 
             for (File file: testFiles){
 
+                // Metrics calculated from getInfo method
                 HashMap info = getInfo(file, path);
                 int currTLOC = (int) info.get("tloc");
                 int currTASSERT = (int) info.get("tassert");
@@ -86,6 +85,7 @@ public class Main {
                     tropCompCounter++;
                 }
 
+                // Adding the total of certain metrics to in the end divide by file count and get their averages
                 dcSum = dcSum + currDC;
                 tassertSum = tassertSum + currTASSERT;
                 totalMethodcount = totalMethodcount + currMethodCount;
@@ -178,11 +178,6 @@ public class Main {
         String filePath = file.getAbsolutePath();
         dictionary.put("relativePath", getRelativePath(origin,filePath));
 
-        // Get package and class name
-        String pkgName = getPkgName(file);
-        dictionary.put("package", getPkgName(file));
-        dictionary.put("className",removeExtension(file.getName()));
-
         // Get tloc
         int tlocVal = tloc.calculateTLOC(file.getPath());
         dictionary.put("tloc",tlocVal);
@@ -205,29 +200,6 @@ public class Main {
         dictionary.put("averageCC",averageCC);
 
         return dictionary;
-    }
-
-    public static String removeExtension(String file){
-        return file.replaceFirst("[.][^.]+$", "");
-    }
-
-    // Takes a file and returns the package name within a file
-    public static String getPkgName(File file) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            Pattern packagePattern = Pattern.compile("^\\s*package\\s+([^\\s;]+)\\s*;");
-            while ((line = reader.readLine()) != null) {
-                Matcher matcher = packagePattern.matcher(line);
-                if (matcher.find()) {
-                    String packageName = matcher.group(1);
-                    return packageName.replace('/', '.');
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-
     }
 
 }
